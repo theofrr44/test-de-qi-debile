@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>TEST DE QI ULTRA OFFICIEL™</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Comic Sans MS', cursive; }
+  body {
+    background: linear-gradient(45deg, #ff006e, #8338ec, #3a86ff, #ffbe0b);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+    min-height: 100vh; padding: 20px; color: #fff;
+  }
+  @keyframes gradient {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  .container { max-width: 700px; margin: auto; }
+  .qi-display {
+    background: rgba(0,0,0,0.7); border: 4px solid gold;
+    border-radius: 20px; padding: 20px; text-align: center;
+    margin-bottom: 20px; position: sticky; top: 10px; z-index: 100;
+    box-shadow: 0 0 30px gold;
+  }
+  .qi-display h2 { font-size: 1.2em; color: gold; margin-bottom: 10px; }
+  .qi-value {
+    font-size: 4em; font-weight: bold;
+    background: linear-gradient(90deg, #ff0, #f0f, #0ff);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    animation: pulse 1s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+  .qi-label { font-size: 0.9em; color: #ccc; margin-top: 5px; }
+  .card {
+    background: rgba(255,255,255,0.95); color: #333;
+    border-radius: 20px; padding: 30px; margin-bottom: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  }
+  h1 {
+    text-align: center; font-size: 2.5em; margin-bottom: 20px;
+    text-shadow: 3px 3px 0 #000; color: #fff;
+  }
+  .question {
+    font-size: 1.5em; font-weight: bold; margin-bottom: 20px;
+    color: #8338ec; text-align: center;
+  }
+  .answers { display: grid; gap: 10px; }
+  .answer-btn {
+    background: linear-gradient(90deg, #ff006e, #ffbe0b);
+    color: #fff; border: none; padding: 15px; border-radius: 10px;
+    font-size: 1.1em; cursor: pointer; font-weight: bold;
+    transition: transform 0.2s; font-family: inherit;
+  }
+  .answer-btn:hover { transform: scale(1.05) rotate(-1deg); }
+  .feedback {
+    margin-top: 20px; padding: 20px; border-radius: 15px;
+    text-align: center; font-size: 1.2em; font-weight: bold;
+    animation: shake 0.5s;
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+  }
+  .feedback.good { background: #38ef7d; color: #000; }
+  .feedback.bad { background: #ef473a; color: #fff; }
+  .feedback.wtf { background: #8338ec; color: #fff; }
+  .next-btn {
+    background: #3a86ff; color: #fff; border: none;
+    padding: 15px 30px; border-radius: 10px; font-size: 1.2em;
+    cursor: pointer; margin-top: 15px; font-weight: bold;
+    font-family: inherit;
+  }
+  .next-btn:hover { background: #2563eb; }
+  .start-btn {
+    background: linear-gradient(90deg, #ff006e, #8338ec);
+    color: #fff; border: none; padding: 20px 40px;
+    border-radius: 15px; font-size: 1.5em; cursor: pointer;
+    font-weight: bold; display: block; margin: 20px auto;
+    font-family: inherit;
+  }
+  .start-btn:hover { transform: scale(1.1); }
+  .final {
+    text-align: center; font-size: 1.3em;
+  }
+  .final h2 { font-size: 3em; color: #ff006e; margin: 20px 0; }
+  .final p { margin: 15px 0; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🧠 TEST DE QI ULTRA OFFICIEL™ 🧠</h1>
+  
+  <div class="qi-display">
+    <h2>🎯 TON QI ACTUEL</h2>
+    <div class="qi-value" id="qiValue">100</div>
+    <div class="qi-label" id="qiLabel">Moyen (pour l'instant...)</div>
+  </div>
+
+  <!-- ÉCRAN D'ACCUEIL -->
+  <div id="start" class="card">
+    <h2 style="text-align:center; color:#8338ec;">Bienvenue dans le test le plus sérieux du monde</h2>
+    <p style="text-align:center; margin:20px 0; font-size:1.1em;">
+      Ce test a été développé par des scientifiques de renommée internationale (enfin, c'est ce qu'ils disent).
+      <br><br>
+      ⚠️ Attention : chaque réponse compte. Certaines questions sont piégées. D'autres non. Ou peut-être que si. On sait pas trop.
+    </p>
+    <button class="start-btn" onclick="startQuiz()">🚀 COMMENCER LE TEST</button>
+  </div>
+
+  <!-- ÉCRAN QUESTION -->
+  <div id="quiz" class="card hidden">
+    <div class="question" id="question"></div>
+    <div class="answers" id="answers"></div>
+    <div id="feedback"></div>
+  </div>
+
+  <!-- ÉCRAN FINAL -->
+  <div id="final" class="card hidden">
+    <div class="final">
+      <h2 id="finalTitle"></h2>
+      <p id="finalText"></p>
+      <p style="font-size:2em; margin:30px 0;">🏆</p>
+      <button class="start-btn" onclick="location.reload()">🔄 REFAIRE LE TEST</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const questions = [
+  {
+    q: "Une vache a 4 pattes. Combien de pattes a la vache ?",
+    answers: ["4", "7", "Ça dépend de la vache", "Je sais pas"],
+    correct: 1,
+    feedback: "NON ! C'était 7. Vous avez répondu trop vite. La vache en question s'appelait Gérard et il avait 3 pattes en plus dans son cœur. 🐄💔",
+    qiChange: -15
+  },
+  {
+    q: "Combien font 2 + 2 ?",
+    answers: ["4", "5", "Poisson", "Rouge"],
+    correct: 2,
+    feedback: "BRAVO ! La bonne réponse était évidemment 'Poisson'. 2+2=poisson, tout le monde sait ça. C'est écrit dans le livre de maths de 1847. 🐟",
+    qiChange: +20
+  },
+  {
+    q: "Quelle est la capitale de la France ?",
+    answers: ["Paris", "Baguette", "Croissant", "Jean-Pierre"],
+    correct: 3,
+    feedback: "PERDU ! La capitale de la France c'est Jean-Pierre. Paris c'est juste une ville. Jean-Pierre c'est LA capitale. Il vit à Paris d'ailleurs. 🗼",
+    qiChange: -10
+  },
+  {
+    q: "Combien de fois par jour le soleil se lève-t-il ?",
+    answers: ["1 fois", "2 fois", "0 fois", "Le soleil il est timide"],
+    correct: 3,
+    feedback: "EXACT ! Le soleil est super timide. Il se lève jamais vraiment, il fait juste semblant. C'est pour ça qu'il est jaune, il rougit. ☀️😳",
+    qiChange: +15
+  },
+  {
+    q: "Quelle est la couleur du cheval blanc d'Henri IV ?",
+    answers: ["Blanc", "Gris", "Transparent", "Ça dépend s'il a pris un bain"],
+    correct: 2,
+    feedback: "FAUX ! Le cheval d'Henri IV était transparent. C'est pour ça qu'on le voyait pas sur les photos. Il était là, mais invisible. 👻🐴",
+    qiChange: -12
+  },
+  {
+    q: "Combien y a-t-il de lettres dans l'alphabet ?",
+    answers: ["26", "24", "Aucune, l'alphabet c'est une chanson", "Infini"],
+    correct: 2,
+    feedback: "PERDU ! L'alphabet c'est pas des lettres, c'est une chanson. ABCDEFG... Tu connais la suite ? Moi non plus. 🎵",
+    qiChange: -8
+  },
+  {
+    q: "Si tu as 3 pommes et que tu en manges 2, combien te reste-t-il ?",
+    answers: ["1 pomme", "2 pommes", "Une rage de dent", "Un regret"],
+    correct: 3,
+    feedback: "NON ! Il te reste UN REGRET. Tu aurais pas dû manger les pommes, elles étaient pour ton voisin. T'es pas sympa en fait. 🍎😢",
+    qiChange: -20
+  },
+  {
+    q: "Quelle est la vitesse de la lumière ?",
+    answers: ["300 000 km/s", "Rapide", "Comme Flash mais en plus speed", "La lumière elle court pas, elle marche"],
+    correct: 3,
+    feedback: "BRAVO ! La lumière elle marche. Elle court pas. C'est pour ça qu'on dit 'faire la lumière' sur une affaire, pas 'faire le sprint'. 💡🚶",
+    qiChange: +25
+  },
+  {
+    q: "Combien de temps met la Terre pour faire un tour sur elle-même ?",
+    answers: ["24 heures", "365 jours", "Une pause café", "Elle fait pas de tour, elle est ronde"],
+    correct: 3,
+    feedback: "FAUX ! La Terre elle fait pas de tour, elle EST ronde. C'est différent. Tu confonds tout. 🌍",
+    qiChange: -18
+  },
+  {
+    q: "Qui a peint la Joconde ?",
+    answers: ["Léonard de Vinci", "Michel-Ange", "Mon voisin Gérard", "Personne, c'est une photo"],
+    correct: 2,
+    feedback: "PERDU ! C'est mon voisin Gérard qui a peint la Joconde. Il l'a fait un mardi pluvieux de 1987. Léonard de Vinci c'est juste son pseudo. 🎨",
+    qiChange: -15
+  },
+  {
+    q: "Combien font 10 - 5 ?",
+    answers: ["5", "10", "Poulet", "Mardi"],
+    correct: 2,
+    feedback: "NON ! 10-5=poulet. C'est logique : 10 pattes moins 5 pattes = 5 pattes = un poulet et demi. Mais on arrondit au poulet entier. 🐔",
+    qiChange: -10
+  },
+  {
+    q: "Quelle est la plus grande planète du système solaire ?",
+    answers: ["Jupiter", "Le Soleil", "La planète des chaussettes perdues", "Pluton, elle est sous-estimée"],
+    correct: 2,
+    feedback: "FAUX ! La plus grande planète c'est celle des chaussettes perdues. Tu sais, celles qui disparaissent dans la machine à laver ? Elles sont là-bas. 🧦🪐",
+    qiChange: -12
+  },
+  {
+    q: "Combien d'os a le corps humain ?",
+    answers: ["206", "208", "Aucun, on est en gélatine", "Ça dépend si on a mangé"],
+    correct: 2,
+    feedback: "PERDU ! Le corps humain c'est de la gélatine. C'est pour ça qu'on est tout mou. Les os c'est une invention des dentistes. 🦴❌",
+    qiChange: -15
+  },
+  {
+    q: "Quelle est la langue officielle du Brésil ?",
+    answers: ["Portugais", "Brésilien", "Espagnol", "Le silence"],
+    correct: 1,
+    feedback: "NON ! La langue officielle du Brésil c'est le brésilien. Le portugais c'est juste un dialecte local. Demande à n'importe quel Brésilien, il te le dira. 🇧🇷",
+    qiChange: -10
+  },
+  {
+    q: "Combien de côtés a un cercle ?",
+    answers: ["0", "1", "Infini", "2 : l'intérieur et l'extérieur"],
+    correct: 3,
+    feedback: "FAUX ! Un cercle a 2 côtés : l'intérieur et l'extérieur. C'est comme une maison, y'a dedans et dehors. C'est logique non ? ⭕",
+    qiChange: -8
+  },
+  {
+    q: "Quelle est la formule chimique de l'eau ?",
+    answers: ["H2O", "CO2", "Eau = mouillé", "Ça dépend de la température"],
+    correct: 2,
+    feedback: "PERDU ! La formule chimique de l'eau c'est 'Eau = mouillé'. H2O c'est pour les gens compliqués. L'eau c'est simple : c'est mouillé. 💧",
+    qiChange: -20
+  },
+  {
+    q: "Qui a écrit Roméo et Juliette ?",
+    answers: ["Shakespeare", "Molière", "Mon chat", "Personne, c'est une histoire vraie"],
+    correct: 2,
+    feedback: "FAUX ! C'est mon chat qui a écrit Roméo et Juliette. Il s'appelle William Shakespeare, c'est pour ça qu'on croit que c'est lui. Mais non. 🐱✍️",
+    qiChange: -15
+  },
+  {
+    q: "Combien de secondes dans une heure ?",
+    answers: ["3600", "60", "Beaucoup", "Ça dépend si on s'ennuie"],
+    correct: 3,
+    feedback: "NON ! Une heure = le temps que tu mets à attendre le bus. Si t'es pressé c'est long, si tu t'amuses c'est court. C'est relatif. ⏰",
+    qiChange: -10
+  },
+  {
+    q: "Quelle est la monnaie du Japon ?",
+    answers: ["Yen", "Euro", "Dollar", "Le yen c'est une monnaie, le japon c'est un pays"],
+    correct: 3,
+    feedback: "FAUX ! La question est mal posée. Le yen c'est une monnaie, le Japon c'est un pays. Ils sont pas dans la même catégorie. C'est comme demander la couleur du temps. 💴🇯🇵",
+    qiChange: -12
+  },
+  {
+    q: "Dernière question : pourquoi es-tu là ?",
+    answers: ["Pour passer le test", "Je sais pas", "Pour trouver la vérité", "Parce que la vie est un quiz"],
+    correct: 3,
+    feedback: "EXACT ! La vie EST un quiz. Et t'as jamais les bonnes réponses. C'est ça le secret. Bienvenue dans l'existence. 🌟",
+    qiChange: +50
+  }
+];
+
+let currentQuestion = 0;
+let qi = 100;
+
+function startQuiz() {
+  document.getElementById('start').classList.add('hidden');
+  document.getElementById('quiz').classList.remove('hidden');
+  showQuestion();
+}
+
+function showQuestion() {
+  if (currentQuestion >= questions.length) {
+    endQuiz();
+    return;
+  }
+  
+  const q = questions[currentQuestion];
+  document.getElementById('question').textContent = q.q;
+  
+  const answersDiv = document.getElementById('answers');
+  answersDiv.innerHTML = '';
+  
+  q.answers.forEach((answer, index) => {
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn';
+    btn.textContent = answer;
+    btn.onclick = () => selectAnswer(index);
+    answersDiv.appendChild(btn);
+  });
+  
+  document.getElementById('feedback').innerHTML = '';
+}
+
+function selectAnswer(index) {
+  const q = questions[currentQuestion];
+  const feedback = document.getElementById('feedback');
+  
+  // Désactiver les boutons
+  document.querySelectorAll('.answer-btn').forEach(btn => btn.disabled = true);
+  
+  // Afficher le feedback
+  let feedbackClass = 'bad';
+  if (index === q.correct) {
+    feedbackClass = 'good';
+  } else if (Math.random() > 0.5) {
+    feedbackClass = 'wtf';
+  }
+  
+  feedback.innerHTML = `
+    <div class="feedback ${feedbackClass}">
+      ${q.feedback}
+      <br><br>
+      <strong>QI : ${qi > 0 ? '+' : ''}${q.qiChange}</strong>
+    </div>
+    <button class="next-btn" onclick="nextQuestion()">QUESTION SUIVANTE →</button>
+  `;
+  
+  // Mettre à jour le QI
+  qi += q.qiChange;
+  updateQI();
+}
+
+function nextQuestion() {
+  currentQuestion++;
+  showQuestion();
+}
+
+function updateQI() {
+  document.getElementById('qiValue').textContent = qi;
+  
+  let label = '';
+  if (qi < 0) label = "Négatif (comment c'est possible ?!)";
+  else if (qi < 50) label = "En dessous de l'eau";
+  else if (qi < 80) label = "Bof bof";
+  else if (qi < 100) label = "Moyen";
+  else if (qi < 120) label = "Pas mal";
+  else if (qi < 150) label = "Génie";
+  else if (qi < 200) label = "Surhumain";
+  else label = "Dieu du QI";
+  
+  document.getElementById('qiLabel').textContent = label;
+}
+
+function endQuiz() {
+  document.getElementById('quiz').classList.add('hidden');
+  document.getElementById('final').classList.remove('hidden');
+  
+  let title = '';
+  let text = '';
+  
+  if (qi < 0) {
+    title = "🤯 QI NÉGATIF !";
+    text = "Félicitations ! Tu as réussi l'impossible : avoir un QI négatif. Tu es officiellement plus bête qu'une pierre. Mais une pierre gentille.";
+  } else if (qi < 50) {
+    title = "😅 QI... Bizarre";
+    text = "Ton QI est spécial. Comme une licorne, mais en moins magique. Continue comme ça, tu vas battre des records (de bêtise).";
+  } else if (qi < 100) {
+    title = "🤔 QI Moyen";
+    text = "Tu es dans la moyenne. Ni génie, ni completely lost. Juste... normal. C'est déjà pas mal d'être normal de nos jours.";
+  } else if (qi < 150) {
+    title = "🧠 QI Élevé !";
+    text = "Bravo ! Tu as un QI élevé. Tu es officiellement plus intelligent que la moyenne. Mais attention, l'intelligence c'est relatif. Surtout dans ce test.";
+  } else {
+    title = "🏆 QI LÉGENDAIRE !";
+    text = "WOW ! Ton QI est hors normes ! Tu es un génie ! Ou alors tu as eu de la chance. Ou alors ce test est complètement nul. Probablement les trois.";
+  }
+  
+  document.getElementById('finalTitle').textContent = title;
+  document.getElementById('finalText').innerHTML = `
+    ${text}
+    <br><br>
+    <strong style="font-size:1.5em;">QI FINAL : ${qi}</strong>
+    <br><br>
+    <em>Ce certificat est officiel et reconnu par... personne en fait.</em>
+  `;
+}
+</script>
+
+</body>
+</html>
